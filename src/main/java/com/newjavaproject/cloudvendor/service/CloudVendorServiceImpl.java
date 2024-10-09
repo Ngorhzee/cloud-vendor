@@ -5,6 +5,7 @@ import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 
+import com.newjavaproject.cloudvendor.exceptions.CloudVendorNotFound;
 import com.newjavaproject.cloudvendor.models.CloudVendor;
 import com.newjavaproject.cloudvendor.repository.CloudVendorRepository;
 
@@ -19,26 +20,32 @@ CloudVendorRepository cloudVendorRepository;
 
     @Override
     public CloudVendor getVendor(String id) {
+        if(cloudVendorRepository.findById(id).isEmpty()){
+            throw new CloudVendorNotFound("Cloud Vendor does not exist");
+        }
      return cloudVendorRepository.findById(id).get();
     }
 
     @Override
     public CloudVendor updateVendor(CloudVendor vendor,String id) {
-     Optional<CloudVendor> vendorToUpdate = cloudVendorRepository.findById(id);
+        if(cloudVendorRepository.findById(id).isEmpty()){
+            throw new CloudVendorNotFound("Cloud Vendor does not exist");
+        }
+     CloudVendor vendorToUpdate = cloudVendorRepository.findById(id).get();
      if(vendorToUpdate!=null){
         if(vendor.getName()!=null) {
-            vendorToUpdate.get().setName(vendor.getName());;
+            vendorToUpdate.setName(vendor.getName());;
         }
         if(vendor.getPhoneNumber()!=null) {
-            vendorToUpdate.get().setPhoneNumber(vendor.getPhoneNumber());
+            vendorToUpdate.setPhoneNumber(vendor.getPhoneNumber());
         }
         if(vendor.getAddress()!=null) {
-            vendorToUpdate.get().setAddress(vendor.getAddress());
+            vendorToUpdate.setAddress(vendor.getAddress());
         }
      }
    
-       cloudVendorRepository.save(vendorToUpdate.get());
-       return vendorToUpdate.get();
+       cloudVendorRepository.save(vendorToUpdate);
+       return vendorToUpdate;
     }
 
     @Override
@@ -49,6 +56,9 @@ CloudVendorRepository cloudVendorRepository;
 
     @Override
     public String deleteVendor(String id) {
+        if(cloudVendorRepository.findById(id).isEmpty()){
+            throw new CloudVendorNotFound("Cloud Vendor does not exist");
+        }
        cloudVendorRepository.deleteById(id);
        return "Vendor deleted succesfully";
     }
